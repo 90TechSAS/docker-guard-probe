@@ -37,6 +37,7 @@ func HTTPReq(path string) (int, string) {
 	var err error           // Error handling
 
 	// HTTP Get request on the docker unix socket
+	l.Silly("Get API:", path)
 	resp, err = client.Get("http://docker" + path)
 	if err != nil {
 		l.Error("Error: http request:", err)

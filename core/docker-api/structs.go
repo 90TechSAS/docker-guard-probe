@@ -63,6 +63,19 @@ type ContainerShort struct {
 	Status string `json:"Status"`
 }
 
+type ContainerShortSize struct {
+	Command    string        `json:"Command"`
+	Created    int           `json:"Created"`
+	ID         string        `json:"Id"`
+	Image      string        `json:"Image"`
+	Labels     struct{}      `json:"Labels"`
+	Names      []string      `json:"Names"`
+	Ports      []interface{} `json:"Ports"`
+	SizeRootFs float64       `json:"SizeRootFs"`
+	SizeRw     float64       `json:"SizeRw"`
+	Status     string        `json:"Status"`
+}
+
 type Container struct {
 	AppArmorProfile string   `json:"AppArmorProfile"`
 	Args            []string `json:"Args"`

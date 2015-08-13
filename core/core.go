@@ -24,6 +24,9 @@ func Init() {
 	TestDockerAPI()
 	l.Verbose("Docker API OK")
 
+	// Run Storage controller
+	go RunStorageController()
+
 	// Run HTTP Server
 	l.Verbose("Run HTTP Server")
 	RunHTTPServer()

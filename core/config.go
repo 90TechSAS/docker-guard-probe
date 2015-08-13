@@ -14,9 +14,11 @@ type Config struct {
 	} `yaml:"docker"`
 
 	DockerGuard struct {
-		ListenInterface string `yaml:"listen-interface"`
-		ListenPort      string `yaml:"listen-port"`
-		APIPassword     string `yaml:"api-password"`
+		ListenInterface           string `yaml:"listen-interface"`
+		ListenPort                string `yaml:"listen-port"`
+		APIPassword               string `yaml:"api-password"`
+		StorageControllerInterval int    `yaml:"storage-controller-interval"`
+		StorageControllerPause    int    `yaml:"storage-controller-pause"`
 	} `yaml:"docker-guard"`
 }
 
