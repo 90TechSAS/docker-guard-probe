@@ -36,12 +36,14 @@ func HTTPReq(path string) (int, string) {
 	var body []byte         // Docker API response body
 	var err error           // Error handling
 
+	// HTTP Get request on the docker unix socket
 	resp, err = client.Get("http://docker" + path)
 	if err != nil {
 		l.Error("Error: http request:", err)
 		return 400, ""
 	}
 
+	// Read the body
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		l.Error("Error: http response body:", err)
@@ -50,5 +52,6 @@ func HTTPReq(path string) (int, string) {
 
 	l.Debug("Docker API response body:", "\n"+string(body))
 
+	// Return HTTP status code + body
 	return resp.StatusCode, string(body)
 }

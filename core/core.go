@@ -65,7 +65,7 @@ func TestDockerAPI() {
 /*
 	Refresh core.ContainerList
 */
-func RefreshContainerList() {
+func RefreshContainerList() bool {
 	var tmpContainerList []dapi.ContainerShort // Temporary container list
 	var status int                             // HTTP status returned
 	var body string                            // HTTP body returned
@@ -74,15 +74,18 @@ func RefreshContainerList() {
 	// Get container list
 	status, body = HTTPReq("/containers/json?all=1")
 	if status != 200 {
-		l.Critical("Can't get docker version, status:", status)
+		l.Error("Can't get container list, status:", status)
+		return false
 	}
 
 	// Parse returned json
 	err = json.Unmarshal([]byte(body), &tmpContainerList)
 	if err != nil {
-		l.Critical("Parsing docker version error:", err)
+		l.Error("Parsing container list error:", err)
+		return false
 	}
 
 	// Set ContainerList
 	ContainerList = tmpContainerList
+	return true
 }
