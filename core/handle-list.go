@@ -54,6 +54,15 @@ func HTTPHandlerList(w http.ResponseWriter, r *http.Request) {
 		tmpDGSContainer.State.Running = tmpDAPIContainer.State.Running
 		tmpDGSContainer.State.StartedAt = tmpDAPIContainer.State.StartedAt
 
+		containerStorage, ok := ContainerStorage[tmpDGSContainer.ID]
+		if ok {
+			tmpDGSContainer.SizeRootFs = containerStorage[0]
+			tmpDGSContainer.SizeRw = containerStorage[1]
+		} else {
+			tmpDGSContainer.SizeRootFs = 0
+			tmpDGSContainer.SizeRw = 0
+		}
+
 		// Add tmpDGSContainer to tmpContainerList
 		tmpContainerList = append(tmpContainerList, tmpDGSContainer)
 	}
