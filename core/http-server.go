@@ -18,13 +18,12 @@ func HTTPMatcher(r *http.Request, rm *mux.RouteMatch) bool {
 	Run HTTP Server
 */
 func RunHTTPServer() {
-	r0 := mux.NewRouter()
-	r1 := r0.Methods("GET").Subrouter()
-	r2 := r1.MatcherFunc(HTTPMatcher).Subrouter()
+	r := mux.NewRouter().MatcherFunc(HTTPMatcher).Subrouter()
+	r_GET := r.Methods("GET").Subrouter()
 
-	r2.HandleFunc("/info", HTTPHandlerInfo)
-	r2.HandleFunc("/list", HTTPHandlerList)
-	http.Handle("/", r0)
+	r_GET.HandleFunc("/info", HTTPHandlerInfo)
+	r_GET.HandleFunc("/list", HTTPHandlerList)
+	http.Handle("/", r)
 
-	http.ListenAndServe(DGConfig.DockerGuard.ListenInterface+":"+DGConfig.DockerGuard.ListenPort, r0)
+	http.ListenAndServe(DGConfig.DockerGuard.ListenInterface+":"+DGConfig.DockerGuard.ListenPort, r)
 }
