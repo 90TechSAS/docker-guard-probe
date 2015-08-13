@@ -16,6 +16,7 @@ type Config struct {
 	DockerGuard struct {
 		ListenInterface string `yaml:"listen-interface"`
 		ListenPort      string `yaml:"listen-port"`
+		APIPassword     string `yaml:"api-password"`
 	} `yaml:"docker-guard"`
 }
 
