@@ -3,7 +3,11 @@ package core
 import (
 	"encoding/json"
 
-	dguard "github.com/90TechSAS/libgo-docker-guard"
+	dapi "./docker-api"
+)
+
+var (
+	ContainerList []dapi.ContainerShort
 )
 
 /*
@@ -29,10 +33,10 @@ func Init() {
 	Test Docker API connectivity
 */
 func TestDockerAPI() {
-	var status int                         // HTTP status returned
-	var body string                        // HTTP body returned
-	var err error                          // Error handling
-	var dockerVersion dguard.DockerVersion // DockerVersion struct
+	var status int                       // HTTP status returned
+	var body string                      // HTTP body returned
+	var err error                        // Error handling
+	var dockerVersion dapi.DockerVersion // DockerVersion struct
 
 	// Get /version on API
 	status, body = HTTPReq("/version")
@@ -56,4 +60,29 @@ func TestDockerAPI() {
 	l.Info("\tKernelVersion:\t", dockerVersion.KernelVersion)
 	l.Info("\tOs:\t\t", dockerVersion.Os)
 	l.Info("\tVersion:\t", dockerVersion.Version)
+}
+
+/*
+	Refresh core.ContainerList
+*/
+func RefreshContainerList() {
+	var tmpContainerList []dapi.ContainerShort // Temporary container list
+	var status int                             // HTTP status returned
+	var body string                            // HTTP body returned
+	var err error                              // Error handling
+
+	// Get container list
+	status, body = HTTPReq("/containers/json?all=1")
+	if status != 200 {
+		l.Critical("Can't get docker version, status:", status)
+	}
+
+	// Parse returned json
+	err = json.Unmarshal([]byte(body), &tmpContainerList)
+	if err != nil {
+		l.Critical("Parsing docker version error:", err)
+	}
+
+	// Set ContainerList
+	ContainerList = tmpContainerList
 }

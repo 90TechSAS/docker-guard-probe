@@ -24,8 +24,8 @@ func HTTPHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check first URI item
 	switch URIItems[1] {
-	case "infos":
-		fmt.Fprint(w, "/infos TODO")
+	case "info":
+		fmt.Fprint(w, "/info TODO")
 	case "version":
 		fmt.Fprint(w, "/version TODO")
 	default:
