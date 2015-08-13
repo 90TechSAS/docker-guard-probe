@@ -50,7 +50,7 @@ func HTTPReq(path string) (int, string) {
 		return 400, ""
 	}
 
-	l.Debug("Docker API response body:", "\n"+string(body))
+	l.Silly("Docker API response body:", "\n"+string(body))
 
 	// Return HTTP status code + body
 	return resp.StatusCode, string(body)
