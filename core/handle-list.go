@@ -19,11 +19,12 @@ func HTTPHandlerList(w http.ResponseWriter, r *http.Request) {
 
 	// Browse container list
 	for _, container := range ContainerList {
-		var tmpDAPIContainer dapi.Container  // Temporary Docker API Container
-		var tmpDGSContainer dguard.Container // Temporary DGS Container
-		var status int                       // HTTP status returned
-		var body string                      // HTTP body returned
-		var err error                        // Error handling
+		var tmpDAPIContainer dapi.Container       // Temporary Docker API Container
+		var tmpDGSContainer dguard.Container      // Temporary DGS Container
+		var tmpContainerStats dapi.ContainerStats // Temporary DGS Container stats
+		var status int                            // HTTP status returned
+		var body string                           // HTTP body returned
+		var err error                             // Error handling
 
 		// Get container info
 		status, body = HTTPReq("/containers/" + container.ID + "/json")
@@ -35,6 +36,18 @@ func HTTPHandlerList(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal([]byte(body), &tmpDAPIContainer)
 		if err != nil {
 			l.Error("Parsing docker container (", container.ID, ") info:", err)
+		}
+
+		// Get container stats
+		status, body = HTTPReq("/containers/" + container.ID + "/stats?stream=0")
+		if status != 200 {
+			l.Error("Can't get docker container (", container.ID, ") stats, status:", status)
+		}
+
+		// Parse returned json
+		err = json.Unmarshal([]byte(body), &tmpContainerStats)
+		if err != nil {
+			l.Error("Parsing docker container (", container.ID, ") stats:", err)
 		}
 
 		// Set tmpDGSContainer
@@ -53,6 +66,7 @@ func HTTPHandlerList(w http.ResponseWriter, r *http.Request) {
 		tmpDGSContainer.State.Restarting = tmpDAPIContainer.State.Restarting
 		tmpDGSContainer.State.Running = tmpDAPIContainer.State.Running
 		tmpDGSContainer.State.StartedAt = tmpDAPIContainer.State.StartedAt
+		tmpDGSContainer.MemoryUsed = float64(tmpContainerStats.MemoryStats.Usage)
 
 		containerStorage, ok := ContainerStorage[tmpDGSContainer.ID]
 		if ok {
