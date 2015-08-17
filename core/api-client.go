@@ -2,6 +2,7 @@ package core
 
 import (
 	"io/ioutil"
+	"math/rand"
 	"net"
 	"net/http"
 )
@@ -32,12 +33,13 @@ func InitAPIClient() {
 	Do HTTP request on API
 */
 func HTTPReq(path string) (int, string) {
-	var resp *http.Response // Docker API response
-	var body []byte         // Docker API response body
-	var err error           // Error handling
+	var resp *http.Response               // Docker API response
+	var body []byte                       // Docker API response body
+	var err error                         // Error handling
+	var reqID int = rand.Intn(2000000000) // Request ID (for debugging)
 
 	// HTTP Get request on the docker unix socket
-	l.Silly("Get API:", path)
+	l.Silly("(", reqID, ") Get API:", path)
 	resp, err = client.Get("http://docker" + path)
 	if err != nil {
 		l.Error("Error: http request:", err)
@@ -47,11 +49,11 @@ func HTTPReq(path string) (int, string) {
 	// Read the body
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		l.Error("Error: http response body:", err)
+		l.Error("(", reqID, ") Error: http response body:", err)
 		return 400, ""
 	}
 
-	l.Silly("Docker API response body:", "\n"+string(body))
+	l.Silly("(", reqID, ")Docker API response body:", "\n"+string(body))
 
 	// Return HTTP status code + body
 	return resp.StatusCode, string(body)

@@ -2,12 +2,17 @@ package core
 
 import (
 	"encoding/json"
+	"errors"
+	"time"
+
+	"../utils"
 
 	dapi "./docker-api"
+	dguard "github.com/90TechSAS/libgo-docker-guard"
 )
 
 var (
-	ContainerList []dapi.ContainerShort
+	ContainerList map[string]*dguard.Container
 )
 
 /*
@@ -24,12 +29,21 @@ func Init() {
 	TestDockerAPI()
 	l.Verbose("Docker API OK")
 
-	// Run Storage controller
-	go RunStorageController()
+	// Init ContainersList
+	ContainerList = make(map[string]*dguard.Container)
 
 	// Run HTTP Server
 	l.Verbose("Run HTTP Server")
-	RunHTTPServer()
+	go RunHTTPServer()
+
+	// Run Stats controller
+	go StatsController()
+
+	// Refresh container list
+	for {
+		RefreshContainerList()
+		time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.StorageControllerInterval))
+	}
 }
 
 /*
@@ -68,27 +82,141 @@ func TestDockerAPI() {
 /*
 	Refresh core.ContainerList
 */
-func RefreshContainerList() bool {
-	var tmpContainerList []dapi.ContainerShort // Temporary container list
-	var status int                             // HTTP status returned
-	var body string                            // HTTP body returned
-	var err error                              // Error handling
+func RefreshContainerList() error {
+	var tmpContainerArray []dapi.ContainerShort                                            // Temporary container array
+	var tmpContainerList map[string]*dguard.Container = make(map[string]*dguard.Container) // Temporary container list
+	var tmpContainer *dguard.Container                                                     // Temporary container
+	var status int                                                                         // HTTP status returned
+	var body string                                                                        // HTTP body returned
+	var err error                                                                          // Error handling
+	var ok bool                                                                            // map getter returned
+
+	// Init timer
+	timer = time.Now()
 
 	// Get container list
+	l.Debug("RefreshContainerList: Get tmpContainerArray")
 	status, body = HTTPReq("/containers/json?all=1")
 	if status != 200 {
 		l.Error("Can't get container list, status:", status)
-		return false
+		return errors.New("Can't get container list, status: " + utils.I2S(status))
 	}
 
 	// Parse returned json
-	err = json.Unmarshal([]byte(body), &tmpContainerList)
+	err = json.Unmarshal([]byte(body), &tmpContainerArray)
 	if err != nil {
 		l.Error("Parsing container list error:", err)
-		return false
+		return err
 	}
+	l.Debug("RefreshContainerList: Get tmpContainerArray OK")
 
-	// Set ContainerList
-	ContainerList = tmpContainerList
-	return true
+	// Create container list
+	l.Debug("RefreshContainerList: tmpContainerList")
+	for _, dapiContainer := range tmpContainerArray {
+		var tmpDAPIContainer dapi.Container  // Temporary DAPI container
+		var tmpDGSContainer dguard.Container // Temporary DGS container
+
+		// Get container infos
+		status, body = HTTPReq("/containers/" + dapiContainer.ID + "/json")
+		if status != 200 {
+			l.Error("Can't get container list, status:", status)
+			continue
+		}
+
+		// Parse returned json
+		err = json.Unmarshal([]byte(body), &tmpDAPIContainer)
+		if err != nil {
+			l.Error("Parsing container list error:", err)
+			continue
+		}
+
+		// Set tmpDGSContainer fields
+		tmpDGSContainer.ID = tmpDAPIContainer.ID
+		tmpDGSContainer.Hostname = tmpDAPIContainer.Config.Hostname
+		tmpDGSContainer.Image = tmpDAPIContainer.Config.Image
+		tmpDGSContainer.IPAddress = tmpDAPIContainer.NetworkSettings.IPAddress
+		tmpDGSContainer.MacAddress = tmpDAPIContainer.NetworkSettings.MacAddress
+		tmpDGSContainer.SizeRootFs = 0
+		tmpDGSContainer.SizeRw = 0
+		tmpDGSContainer.MemoryUsed = 0
+		tmpDGSContainer.Running = tmpDAPIContainer.State.Running
+
+		// Add tmpDGSContainer to the tmpContainerList
+		tmpContainerList[tmpDGSContainer.ID] = &tmpDGSContainer
+
+		// if tmpDGSContainer already exists: update status
+		tmpC, ok := ContainerList[tmpDGSContainer.ID]
+		if ok {
+			tmpC.Running = tmpDGSContainer.Running
+			ContainerList[tmpDGSContainer.ID] = tmpC
+		}
+	}
+	l.Debug("RefreshContainerList: tmpContainerList OK")
+
+	// Check new containers
+	l.Debug("RefreshContainerList: Check new containers")
+	for _, tmpContainer = range tmpContainerList {
+		// If containers does not exist: add it
+		_, ok = ContainerList[tmpContainer.ID]
+		if !ok {
+			// Add tmpContainer in ContainerList
+			ContainerList[tmpContainer.ID] = tmpContainer
+			l.Debug("Container", tmpContainer.ID, "added in ContainerList")
+		}
+	}
+	l.Debug("RefreshContainerList: Check new containers OK")
+
+	// Check removed containers
+	l.Debug("RefreshContainerList: Check removed containers")
+	for _, tmpContainer = range ContainerList {
+		// If containers does not exist: delete it
+		_, ok = tmpContainerList[tmpContainer.ID]
+		if !ok {
+			// Remove tmpContainer in ContainerList
+			delete(ContainerList, tmpContainer.ID)
+			l.Debug("Container", tmpContainer.ID, "removed in ContainerList")
+		}
+	}
+	l.Debug("RefreshContainerList: Check removed containers OK")
+
+	return nil
+}
+
+/*
+	Set the RootFs size of a container in the ContainerList
+*/
+func SetContainerSizeRootFs(id string, size float64) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].SizeRootFs = size
+		return true
+	}
+	return false
+}
+
+/*
+	Set the Rw size of a container in the ContainerList
+*/
+func SetContainerSizeRw(id string, size float64) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].SizeRw = size
+		return true
+	}
+	return false
+}
+
+/*
+	Set the memory used size of a container in the ContainerList
+*/
+func SetContainerMemoryUsed(id string, size float64) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].MemoryUsed = size
+		return true
+	}
+	return false
 }
