@@ -39,21 +39,21 @@ func HTTPReq(path string) (int, string) {
 	var reqID int = rand.Intn(2000000000) // Request ID (for debugging)
 
 	// HTTP Get request on the docker unix socket
-	l.Silly("(", reqID, ") Get API:", path)
+	l.Silly("APIClient: (", reqID, ") Get API:", path)
 	resp, err = client.Get("http://docker" + path)
 	if err != nil {
-		l.Error("Error: http request:", err)
+		l.Error("APIClient: Error: http request:", err)
 		return 400, ""
 	}
 
 	// Read the body
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		l.Error("(", reqID, ") Error: http response body:", err)
+		l.Error("APIClient: (", reqID, ") Error: http response body:", err)
 		return 400, ""
 	}
 
-	l.Silly("(", reqID, ")Docker API response body:", "\n"+string(body))
+	l.Silly("APIClient: (", reqID, ")Docker API response body:", "\n"+string(body))
 
 	// Return HTTP status code + body
 	return resp.StatusCode, string(body)
