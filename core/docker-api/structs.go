@@ -2,13 +2,13 @@ package dockerapi
 
 type DockerInfo struct {
 	Containers         int         `json:"Containers"`
-	Debug              int         `json:"Debug"`
+	Debug              bool        `json:"Debug"`
 	DockerRootDir      string      `json:"DockerRootDir"`
 	Driver             string      `json:"Driver"`
 	DriverStatus       [][]string  `json:"DriverStatus"`
 	ExecutionDriver    string      `json:"ExecutionDriver"`
 	ID                 string      `json:"ID"`
-	IPv4Forwarding     int         `json:"IPv4Forwarding"`
+	IPv4Forwarding     bool        `json:"IPv4Forwarding"`
 	Images             int         `json:"Images"`
 	IndexServerAddress string      `json:"IndexServerAddress"`
 	InitPath           string      `json:"InitPath"`
@@ -16,7 +16,7 @@ type DockerInfo struct {
 	KernelVersion      string      `json:"KernelVersion"`
 	Labels             interface{} `json:"Labels"`
 	MemTotal           int         `json:"MemTotal"`
-	MemoryLimit        int         `json:"MemoryLimit"`
+	MemoryLimit        bool        `json:"MemoryLimit"`
 	NCPU               int         `json:"NCPU"`
 	NEventsListener    int         `json:"NEventsListener"`
 	NFd                int         `json:"NFd"`
@@ -34,7 +34,7 @@ type DockerInfo struct {
 		} `json:"IndexConfigs"`
 		InsecureRegistryCIDRs []string `json:"InsecureRegistryCIDRs"`
 	} `json:"RegistryConfig"`
-	SwapLimit  int    `json:"SwapLimit"`
+	SwapLimit  bool   `json:"SwapLimit"`
 	SystemTime string `json:"SystemTime"`
 }
 

@@ -91,9 +91,6 @@ func RefreshContainerList() error {
 	var err error                                                                          // Error handling
 	var ok bool                                                                            // map getter returned
 
-	// Init timer
-	timer = time.Now()
-
 	// Get container list
 	l.Debug("RefreshContainerList: Get tmpContainerArray")
 	status, body = HTTPReq("/containers/json?all=1")
