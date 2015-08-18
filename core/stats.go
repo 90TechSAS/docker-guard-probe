@@ -43,7 +43,7 @@ func StatsController() {
 			continue
 		}
 
-		for i := 1; i < len(tmpContainerArray); i++ {
+		for i := 0; i < len(tmpContainerArray); i++ {
 			l.Silly("Get", tmpContainerArray[i], "storage usage")
 
 			// Get container stats
