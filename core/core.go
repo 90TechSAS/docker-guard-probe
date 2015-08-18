@@ -95,14 +95,14 @@ func RefreshContainerList() error {
 	l.Debug("RefreshContainerList: Get tmpContainerArray")
 	status, body = HTTPReq("/containers/json?all=1")
 	if status != 200 {
-		l.Error("Can't get container list, status:", status)
+		l.Error("RefreshContainerList: Can't get container list, status:", status)
 		return errors.New("Can't get container list, status: " + utils.I2S(status))
 	}
 
 	// Parse returned json
 	err = json.Unmarshal([]byte(body), &tmpContainerArray)
 	if err != nil {
-		l.Error("Parsing container list error:", err)
+		l.Error("RefreshContainerList: Parsing container list error:", err)
 		return err
 	}
 	l.Debug("RefreshContainerList: Get tmpContainerArray OK")
@@ -116,14 +116,14 @@ func RefreshContainerList() error {
 		// Get container infos
 		status, body = HTTPReq("/containers/" + dapiContainer.ID + "/json")
 		if status != 200 {
-			l.Error("Can't get container list, status:", status)
+			l.Error("RefreshContainerList: Can't get container list, status:", status)
 			continue
 		}
 
 		// Parse returned json
 		err = json.Unmarshal([]byte(body), &tmpDAPIContainer)
 		if err != nil {
-			l.Error("Parsing container list error:", err)
+			l.Error("RefreshContainerList: Parsing container list error:", err)
 			continue
 		}
 
@@ -158,7 +158,7 @@ func RefreshContainerList() error {
 		if !ok {
 			// Add tmpContainer in ContainerList
 			ContainerList[tmpContainer.ID] = tmpContainer
-			l.Debug("Container", tmpContainer.ID, "added in ContainerList")
+			l.Debug("RefreshContainerList: Container", tmpContainer.ID, "added in ContainerList")
 		}
 	}
 	l.Debug("RefreshContainerList: Check new containers OK")
@@ -171,7 +171,7 @@ func RefreshContainerList() error {
 		if !ok {
 			// Remove tmpContainer in ContainerList
 			delete(ContainerList, tmpContainer.ID)
-			l.Debug("Container", tmpContainer.ID, "removed in ContainerList")
+			l.Debug("RefreshContainerList: Container", tmpContainer.ID, "removed in ContainerList")
 		}
 	}
 	l.Debug("RefreshContainerList: Check removed containers OK")
