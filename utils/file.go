@@ -1,10 +1,11 @@
 package utils
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
-	"path/filepath"
-	"syscall"
+	"os/exec"
+	"strings"
 )
 
 /*
@@ -64,34 +65,23 @@ func DirExists(path string) bool {
 }
 
 /*
-	Size walks a directory tree and returns its total size in bytes.
-	This function is from the docker project
+	Use unix "du" command to get directory disk usage
 */
-func DirectorySize(dir string) (size int64, err error) {
-	data := make(map[uint64]struct{})
-	err = filepath.Walk(dir, func(d string, fileInfo os.FileInfo, e error) error {
-		// Ignore directory sizes
-		if fileInfo == nil {
-			return nil
-		}
+func DirectorySize(dir string) (int64, error) {
+	var size int64 // Directory size
+	var err error  // Error handling
+	var out []byte // Command output
 
-		s := fileInfo.Size()
-		if fileInfo.IsDir() || s == 0 {
-			return nil
-		}
+	out, err = exec.Command("du", "-s", dir).Output()
+	if err != nil {
+		return 0, err
+	}
 
-		// Check inode to handle hard links correctly
-		inode := fileInfo.Sys().(*syscall.Stat_t).Ino
-		// inode is not a uint64 on all platforms. Cast it to avoid issues.
-		if _, exists := data[uint64(inode)]; exists {
-			return nil
-		}
-		// inode is not a uint64 on all platforms. Cast it to avoid issues.
-		data[uint64(inode)] = struct{}{}
+	s := strings.Split(string(out), "\t")
+	if len(s) < 2 {
+		return 0, errors.New("Can't get disk usage")
+	}
+	size = int64(S2I(s[0]))
 
-		size += s
-
-		return nil
-	})
-	return
+	return size * 1024, nil
 }
