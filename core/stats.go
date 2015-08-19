@@ -76,6 +76,7 @@ func StatsController() {
 				SetContainerSizeRootFs(tmpContainerArray[i].ID, float64(sizeRootFs))
 				SetContainerSizeRw(tmpContainerArray[i].ID, float64(sizeRW))
 				SetContainerMemoryUsed(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.MemoryStats.Usage))
+				ContainerResetTime(tmpContainerArray[i].ID)
 				l.Debug("StatsController: Add values to map OK")
 			}
 

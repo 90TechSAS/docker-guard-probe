@@ -217,3 +217,16 @@ func SetContainerMemoryUsed(id string, size float64) bool {
 	}
 	return false
 }
+
+/*
+	Set the memory used size of a container in the ContainerList
+*/
+func ContainerResetTime(id string) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].Time = float64(time.Now().Unix())
+		return true
+	}
+	return false
+}
