@@ -42,7 +42,7 @@ func Init() {
 	// Refresh container list
 	for {
 		RefreshContainerList()
-		time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.StorageControllerInterval))
+		time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.RefreshContainerListInterval))
 	}
 }
 
