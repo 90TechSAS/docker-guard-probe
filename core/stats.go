@@ -8,12 +8,27 @@ import (
 	dapi "./docker-api"
 )
 
+/*
+	Previous stats
+*/
+type OldStats struct {
+	Filled         bool
+	NetRX          float64
+	NetTX          float64
+	CPUUsage       float64
+	SystemCPUUsage float64
+	Time           time.Time
+}
+
 func StatsController() {
 	var status int                               // HTTP status returned
 	var body string                              // HTTP body returned
 	var err error                                // Error handling
 	var tmpContainerArray []*dapi.ContainerShort // Temporary container array
-	var wg sync.WaitGroup
+	var oldStats map[string]*OldStats            // Previous stats
+	var wg sync.WaitGroup                        // Waiting group for API client
+
+	oldStats = make(map[string]*OldStats)
 
 	for {
 		// Get container list
@@ -45,8 +60,11 @@ func StatsController() {
 			tmpContainer := tmpContainerArray[i]
 
 			// Get asynchronously stats
+			if oldStats[tmpContainer.ID] == nil {
+				oldStats[tmpContainer.ID] = new(OldStats)
+			}
 			wg.Add(1)
-			go GetStats(tmpContainer, &wg)
+			go GetStats(tmpContainer, oldStats[tmpContainer.ID], &wg)
 
 			// Pause 1sec * StorageControllerInterval
 			time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.StorageControllerInterval))
@@ -65,15 +83,13 @@ func StatsController() {
 /*
 	Get container's stats
 */
-func GetStats(container *dapi.ContainerShort, wg *sync.WaitGroup) {
+func GetStats(container *dapi.ContainerShort, oldS *OldStats, wg *sync.WaitGroup) {
 	var tmpDAPIContainerS dapi.ContainerStats // Temporary DAPI container stats
 	var status int                            // HTTP status returned
 	var body string                           // HTTP body returned
 	var err error                             // Error handling
 
-	defer func() {
-		wg.Done()
-	}()
+	defer wg.Done()
 
 	// Get container stats
 	status, body = HTTPReq("/containers/" + container.ID + "/stats?stream=0")
@@ -91,11 +107,31 @@ func GetStats(container *dapi.ContainerShort, wg *sync.WaitGroup) {
 
 	// Add values to map
 	if status == 200 {
+		var rxb, txb, cpuu float64
+		if oldS.Filled {
+			rxb = (float64(tmpDAPIContainerS.Network.RxBytes) - oldS.NetRX) / time.Since(oldS.Time).Seconds()
+			txb = (float64(tmpDAPIContainerS.Network.TxBytes) - oldS.NetTX) / time.Since(oldS.Time).Seconds()
+			delta1 := float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage) - oldS.CPUUsage
+			delta2 := float64(tmpDAPIContainerS.CPUStats.SystemCPUUsage) - oldS.SystemCPUUsage
+			cpuu = delta1 / delta2 * 100
+		} else {
+			rxb = 0
+			txb = 0
+			cpuu = 0
+		}
+
+		oldS.NetRX = float64(tmpDAPIContainerS.Network.RxBytes)
+		oldS.NetTX = float64(tmpDAPIContainerS.Network.TxBytes)
+		oldS.CPUUsage = float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage)
+		oldS.SystemCPUUsage = float64(tmpDAPIContainerS.CPUStats.SystemCPUUsage)
+		oldS.Time = time.Now()
+		oldS.Filled = true
+
 		l.Debug("StatsController: Add values to map")
 		SetContainerMemoryUsed(container.ID, float64(tmpDAPIContainerS.MemoryStats.Usage))
-		SetContainerNetBandwithRX(container.ID, float64(tmpDAPIContainerS.Network.RxBytes))
-		SetContainerNetBandwithTX(container.ID, float64(tmpDAPIContainerS.Network.TxBytes))
-		SetContainerCPUUsage(container.ID, float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage))
+		SetContainerNetBandwithRX(container.ID, rxb)
+		SetContainerNetBandwithTX(container.ID, txb)
+		SetContainerCPUUsage(container.ID, cpuu)
 		ContainerResetTime(container.ID)
 		l.Debug("StatsController: Add values to map OK")
 	}
