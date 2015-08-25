@@ -2,17 +2,18 @@ package core
 
 import (
 	"encoding/json"
+	"sync"
 	"time"
 
 	dapi "./docker-api"
 )
 
 func StatsController() {
-	var status int                              // HTTP status returned
-	var body string                             // HTTP body returned
-	var err error                               // Error handling
-	var tmpContainerArray []dapi.ContainerShort // Temporary container array
-	var tmpDAPIContainerS dapi.ContainerStats   // Temporary DAPI container stats
+	var status int                               // HTTP status returned
+	var body string                              // HTTP body returned
+	var err error                                // Error handling
+	var tmpContainerArray []*dapi.ContainerShort // Temporary container array
+	var wg sync.WaitGroup
 
 	for {
 		// Get container list
@@ -39,41 +40,63 @@ func StatsController() {
 			continue
 		}
 
+		// Get containers' stats
 		for i := 0; i < len(tmpContainerArray); i++ {
-			l.Silly("StatsController: Get", tmpContainerArray[i], "storage usage")
+			tmpContainer := tmpContainerArray[i]
 
-			// Get container stats
-			status, body = HTTPReq("/containers/" + tmpContainerArray[i].ID + "/stats?stream=0")
-			if status != 200 {
-				l.Error("StatsController: Can't get docker container (", tmpContainerArray[i].ID, ") stats, status:", status)
-				continue
-			} else {
-				// Parse container returned json
-				err = json.Unmarshal([]byte(body), &tmpDAPIContainerS)
-				if err != nil {
-					l.Error("StatsController: Parsing docker container (", tmpContainerArray[i].ID, ") stats:", err)
-					continue
-				}
-			}
-
-			// Add values to map
-			if status == 200 {
-				l.Debug("StatsController: Add values to map")
-				SetContainerMemoryUsed(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.MemoryStats.Usage))
-				SetContainerNetBandwithRX(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.Network.RxBytes))
-				SetContainerNetBandwithTX(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.Network.TxBytes))
-				SetContainerCPUUsage(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage))
-				ContainerResetTime(tmpContainerArray[i].ID)
-				l.Debug("StatsController: Add values to map OK")
-			}
+			// Get asynchronously stats
+			wg.Add(1)
+			go GetStats(tmpContainer, &wg)
 
 			// Pause 1sec * StorageControllerInterval
 			time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.StorageControllerInterval))
 		}
+
+		// Wait stats getters
+		wg.Wait()
 
 		// Pause 1sec * StorageControllerPause
 		l.Silly("StatsController: End getting containers storage usage")
 		time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.StorageControllerPause))
 	}
 
+}
+
+/*
+	Get container's stats
+*/
+func GetStats(container *dapi.ContainerShort, wg *sync.WaitGroup) {
+	var tmpDAPIContainerS dapi.ContainerStats // Temporary DAPI container stats
+	var status int                            // HTTP status returned
+	var body string                           // HTTP body returned
+	var err error                             // Error handling
+
+	defer func() {
+		wg.Done()
+	}()
+
+	// Get container stats
+	status, body = HTTPReq("/containers/" + container.ID + "/stats?stream=0")
+	if status != 200 {
+		l.Error("StatsController: Can't get docker container (", container.ID, ") stats, status:", status)
+		return
+	} else {
+		// Parse container returned json
+		err = json.Unmarshal([]byte(body), &tmpDAPIContainerS)
+		if err != nil {
+			l.Error("StatsController: Parsing docker container (", container.ID, ") stats:", err)
+			return
+		}
+	}
+
+	// Add values to map
+	if status == 200 {
+		l.Debug("StatsController: Add values to map")
+		SetContainerMemoryUsed(container.ID, float64(tmpDAPIContainerS.MemoryStats.Usage))
+		SetContainerNetBandwithRX(container.ID, float64(tmpDAPIContainerS.Network.RxBytes))
+		SetContainerNetBandwithTX(container.ID, float64(tmpDAPIContainerS.Network.TxBytes))
+		SetContainerCPUUsage(container.ID, float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage))
+		ContainerResetTime(container.ID)
+		l.Debug("StatsController: Add values to map OK")
+	}
 }
