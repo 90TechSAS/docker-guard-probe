@@ -39,6 +39,9 @@ func Init() {
 	// Run Stats controller
 	go StatsController()
 
+	// Run Storage controller
+	go StorageController()
+
 	// Refresh container list
 	for {
 		RefreshContainerList()
@@ -226,6 +229,45 @@ func ContainerResetTime(id string) bool {
 	_, ok = ContainerList[id]
 	if ok {
 		ContainerList[id].Time = float64(time.Now().Unix())
+		return true
+	}
+	return false
+}
+
+/*
+	Set the net bandwith RX of a container in the ContainerList
+*/
+func SetContainerNetBandwithRX(id string, size float64) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].NetBandwithRX = size
+		return true
+	}
+	return false
+}
+
+/*
+	Set the net bandwith TX of a container in the ContainerList
+*/
+func SetContainerNetBandwithTX(id string, size float64) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].NetBandwithTX = size
+		return true
+	}
+	return false
+}
+
+/*
+	Set the cpu usage of a container in the ContainerList
+*/
+func SetContainerCPUUsage(id string, size float64) bool {
+	var ok bool
+	_, ok = ContainerList[id]
+	if ok {
+		ContainerList[id].CPUUsage = size
 		return true
 	}
 	return false

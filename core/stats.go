@@ -5,8 +5,6 @@ import (
 	"time"
 
 	dapi "./docker-api"
-
-	"../utils"
 )
 
 func StatsController() {
@@ -15,8 +13,6 @@ func StatsController() {
 	var err error                               // Error handling
 	var tmpContainerArray []dapi.ContainerShort // Temporary container array
 	var tmpDAPIContainerS dapi.ContainerStats   // Temporary DAPI container stats
-	var sizeRW int64                            // Container's Size RW
-	var sizeRootFs int64                        // Container's Size RootFs
 
 	for {
 		// Get container list
@@ -44,7 +40,7 @@ func StatsController() {
 		}
 
 		for i := 0; i < len(tmpContainerArray); i++ {
-			l.Silly("Get", tmpContainerArray[i], "storage usage")
+			l.Silly("StatsController: Get", tmpContainerArray[i], "storage usage")
 
 			// Get container stats
 			status, body = HTTPReq("/containers/" + tmpContainerArray[i].ID + "/stats?stream=0")
@@ -60,22 +56,13 @@ func StatsController() {
 				}
 			}
 
-			// Get container sizes
-			sizeRW, err = utils.DirectorySize("/var/lib/docker/aufs/diff/" + tmpContainerArray[i].ID)
-			if err != nil {
-				l.Error("StatsController: Can't get container (", tmpContainerArray[i].ID, ") SizeRootFs:", err)
-			}
-			sizeRootFs, err = utils.DirectorySize("/var/lib/docker/aufs/mnt/" + tmpContainerArray[i].ID)
-			if err != nil {
-				l.Error("StatsController: Can't get container (", tmpContainerArray[i].ID, ") SizeRW:", err)
-			}
-
 			// Add values to map
 			if status == 200 {
 				l.Debug("StatsController: Add values to map")
-				SetContainerSizeRootFs(tmpContainerArray[i].ID, float64(sizeRootFs))
-				SetContainerSizeRw(tmpContainerArray[i].ID, float64(sizeRW))
 				SetContainerMemoryUsed(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.MemoryStats.Usage))
+				SetContainerNetBandwithRX(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.Network.RxBytes))
+				SetContainerNetBandwithTX(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.Network.TxBytes))
+				SetContainerCPUUsage(tmpContainerArray[i].ID, float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage))
 				ContainerResetTime(tmpContainerArray[i].ID)
 				l.Debug("StatsController: Add values to map OK")
 			}
@@ -85,7 +72,7 @@ func StatsController() {
 		}
 
 		// Pause 1sec * StorageControllerPause
-		l.Silly("End getting containers storage usage")
+		l.Silly("StatsController: End getting containers storage usage")
 		time.Sleep(time.Second * time.Duration(DGConfig.DockerGuard.StorageControllerPause))
 	}
 
