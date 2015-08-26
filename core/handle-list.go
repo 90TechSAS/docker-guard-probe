@@ -6,14 +6,17 @@ import (
 	"net/http"
 )
 
+/*
+	Handle GET /list
+*/
 func HTTPHandlerList(w http.ResponseWriter, r *http.Request) {
 	var returnStr string
 
 	// tmpContainerList => json
-	tmpJson, _ := json.Marshal(ContainerList)
+	tmpJSON, _ := json.Marshal(ContainerList)
 
 	// Add json to the returned string
-	returnStr = string(tmpJson)
+	returnStr = string(tmpJSON)
 
 	fmt.Fprint(w, returnStr)
 }

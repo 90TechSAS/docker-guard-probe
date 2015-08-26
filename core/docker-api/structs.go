@@ -1,5 +1,8 @@
 package dockerapi
 
+/*
+	Docker API struct
+*/
 type DockerInfo struct {
 	Containers         int         `json:"Containers"`
 	Debug              bool        `json:"Debug"`
@@ -25,7 +28,7 @@ type DockerInfo struct {
 	OperatingSystem    string      `json:"OperatingSystem"`
 	RegistryConfig     struct {
 		IndexConfigs struct {
-			Docker_io struct {
+			Dockerio struct {
 				Mirrors  interface{} `json:"Mirrors"`
 				Name     string      `json:"Name"`
 				Official bool        `json:"Official"`
@@ -38,6 +41,9 @@ type DockerInfo struct {
 	SystemTime string `json:"SystemTime"`
 }
 
+/*
+	Docker API struct
+*/
 type DockerVersion struct {
 	APIVersion    string `json:"ApiVersion"`
 	Arch          string `json:"Arch"`
@@ -49,6 +55,9 @@ type DockerVersion struct {
 	Version       string `json:"Version"`
 }
 
+/*
+	Docker API struct
+*/
 type ContainerShort struct {
 	Command string   `json:"Command"`
 	Created int      `json:"Created"`
@@ -63,6 +72,9 @@ type ContainerShort struct {
 	Status string `json:"Status"`
 }
 
+/*
+	Docker API struct
+*/
 type ContainerShortSize struct {
 	Command    string        `json:"Command"`
 	Created    int           `json:"Created"`
@@ -76,6 +88,9 @@ type ContainerShortSize struct {
 	Status     string        `json:"Status"`
 }
 
+/*
+	Docker API struct
+*/
 type Container struct {
 	AppArmorProfile string   `json:"AppArmorProfile"`
 	Args            []string `json:"Args"`
@@ -195,6 +210,9 @@ type Container struct {
 	VolumesRW struct{} `json:"VolumesRW"`
 }
 
+/*
+	Docker API struct
+*/
 type ContainerStats struct {
 	BlkioStats struct {
 		IoMergedRecursive       []interface{} `json:"io_merged_recursive"`

@@ -33,10 +33,10 @@ func InitAPIClient() {
 	Do HTTP request on API
 */
 func HTTPReq(path string) (int, string) {
-	var resp *http.Response               // Docker API response
-	var body []byte                       // Docker API response body
-	var err error                         // Error handling
-	var reqID int = rand.Intn(2000000000) // Request ID (for debugging)
+	var resp *http.Response           // Docker API response
+	var body []byte                   // Docker API response body
+	var err error                     // Error handling
+	var reqID = rand.Intn(2000000000) // Request ID (for debugging)
 
 	// HTTP Get request on the docker unix socket
 	l.Silly("APIClient: (", reqID, ") Get API:", path)

@@ -10,6 +10,9 @@ import (
 	dguard "github.com/90TechSAS/libgo-docker-guard"
 )
 
+/*
+	Handle GET /info
+*/
 func HTTPHandlerInfo(w http.ResponseWriter, r *http.Request) {
 	var returnStr string
 	var tmpDockerInfo dapi.DockerInfo       // Docker API info
@@ -64,10 +67,10 @@ func HTTPHandlerInfo(w http.ResponseWriter, r *http.Request) {
 	dockerInfo.Version = tmpDockerVersion.Version
 
 	// dockerInfo => json
-	tmpJson, _ := json.Marshal(dockerInfo)
+	tmpJSON, _ := json.Marshal(dockerInfo)
 
 	// Add json to the returned string
-	returnStr = string(tmpJson)
+	returnStr = string(tmpJSON)
 
 	fmt.Fprint(w, returnStr)
 }

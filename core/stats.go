@@ -20,6 +20,9 @@ type OldStats struct {
 	Time           time.Time
 }
 
+/*
+	Loop to get containers' stats
+*/
 func StatsController() {
 	var status int                               // HTTP status returned
 	var body string                              // HTTP body returned
@@ -96,13 +99,13 @@ func GetStats(container *dapi.ContainerShort, oldS *OldStats, wg *sync.WaitGroup
 	if status != 200 {
 		l.Error("StatsController: Can't get docker container (", container.ID, ") stats, status:", status)
 		return
-	} else {
-		// Parse container returned json
-		err = json.Unmarshal([]byte(body), &tmpDAPIContainerS)
-		if err != nil {
-			l.Error("StatsController: Parsing docker container (", container.ID, ") stats:", err)
-			return
-		}
+	}
+
+	// Parse container returned json
+	err = json.Unmarshal([]byte(body), &tmpDAPIContainerS)
+	if err != nil {
+		l.Error("StatsController: Parsing docker container (", container.ID, ") stats:", err)
+		return
 	}
 
 	// Add values to map

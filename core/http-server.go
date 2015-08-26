@@ -35,10 +35,10 @@ func HTTPSecureAPI(r *http.Request, rm *mux.RouteMatch) bool {
 func RunHTTPServer() {
 	r := mux.NewRouter()
 	r1 := r.MatcherFunc(HTTPURILogger).MatcherFunc(HTTPSecureAPI).Subrouter()
-	r_GET := r1.Methods("GET").Subrouter()
+	rGET := r1.Methods("GET").Subrouter()
 
-	r_GET.HandleFunc("/info", HTTPHandlerInfo)
-	r_GET.HandleFunc("/list", HTTPHandlerList)
+	rGET.HandleFunc("/info", HTTPHandlerInfo)
+	rGET.HandleFunc("/list", HTTPHandlerList)
 	http.Handle("/", r)
 
 	http.ListenAndServe(DGConfig.DockerGuard.ListenInterface+":"+DGConfig.DockerGuard.ListenPort, r)

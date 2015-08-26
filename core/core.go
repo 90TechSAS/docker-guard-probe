@@ -11,6 +11,9 @@ import (
 	dguard "github.com/90TechSAS/libgo-docker-guard"
 )
 
+/*
+	List of probe's containers
+*/
 var (
 	ContainerList map[string]*dguard.Container
 )
@@ -86,13 +89,13 @@ func TestDockerAPI() {
 	Refresh core.ContainerList
 */
 func RefreshContainerList() error {
-	var tmpContainerArray []dapi.ContainerShort                                            // Temporary container array
-	var tmpContainerList map[string]*dguard.Container = make(map[string]*dguard.Container) // Temporary container list
-	var tmpContainer *dguard.Container                                                     // Temporary container
-	var status int                                                                         // HTTP status returned
-	var body string                                                                        // HTTP body returned
-	var err error                                                                          // Error handling
-	var ok bool                                                                            // map getter returned
+	var tmpContainerArray []dapi.ContainerShort               // Temporary container array
+	var tmpContainerList = make(map[string]*dguard.Container) // Temporary container list
+	var tmpContainer *dguard.Container                        // Temporary container
+	var status int                                            // HTTP status returned
+	var body string                                           // HTTP body returned
+	var err error                                             // Error handling
+	var ok bool                                               // map getter returned
 
 	// Get container list
 	l.Debug("RefreshContainerList: Get tmpContainerArray")

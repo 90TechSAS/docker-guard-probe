@@ -9,6 +9,9 @@ import (
 	"../utils"
 )
 
+/*
+	Get containers' disk usage
+*/
 func StorageController() {
 	var status int                              // HTTP status returned
 	var body string                             // HTTP body returned
