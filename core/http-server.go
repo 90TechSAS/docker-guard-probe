@@ -37,7 +37,8 @@ func RunHTTPServer() {
 	r1 := r.MatcherFunc(HTTPURILogger).MatcherFunc(HTTPSecureAPI).Subrouter()
 	rGET := r1.Methods("GET").Subrouter()
 
-	rGET.HandleFunc("/info", HTTPHandlerInfo)
+	rGET.HandleFunc("/dockerinfos", HTTPHandlerDockerinfos)
+	rGET.HandleFunc("/probeinfos", HTTPHandlerProbeinfos)
 	rGET.HandleFunc("/list", HTTPHandlerList)
 	http.Handle("/", r)
 

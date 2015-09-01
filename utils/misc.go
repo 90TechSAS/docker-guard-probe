@@ -14,9 +14,8 @@ func I2S(i int) string {
 /*
 	Convert string => int
 */
-func S2I(s string) int {
-	i, _ := strconv.Atoi(s)
-	return i
+func S2I(s string) (int, error) {
+	return strconv.Atoi(s)
 }
 
 /*
@@ -29,8 +28,6 @@ func F2S(f float64) string {
 /*
 	Convert string => float64
 */
-func S2F(s string) float64 {
-	var f float64
-	f, _ = strconv.ParseFloat(s, 64)
-	return f
+func S2F(s string) (float64, error) {
+	return strconv.ParseFloat(s, 64)
 }

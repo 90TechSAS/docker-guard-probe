@@ -3,7 +3,7 @@ package dockerapi
 /*
 	Docker API struct
 */
-type DockerInfo struct {
+type DockerInfos struct {
 	Containers         int         `json:"Containers"`
 	Debug              bool        `json:"Debug"`
 	DockerRootDir      string      `json:"DockerRootDir"`

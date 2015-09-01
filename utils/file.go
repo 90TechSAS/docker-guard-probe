@@ -81,7 +81,11 @@ func DirectorySize(dir string) (int64, error) {
 	if len(s) < 2 {
 		return 0, errors.New("Can't get disk usage")
 	}
-	size = int64(S2I(s[0]))
+	i, err := S2I(s[0])
+	if err != nil {
+		return 0, err
+	}
+	size = int64(i)
 
 	return size * 1024, nil
 }
