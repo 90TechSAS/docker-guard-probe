@@ -151,6 +151,7 @@ func RefreshContainerList() error {
 		tmpC, ok := ContainerList[tmpDGSContainer.ID]
 		if ok {
 			tmpC.Running = tmpDGSContainer.Running
+			ContainerResetTime(tmpDGSContainer.ID)
 			ContainerList[tmpDGSContainer.ID] = tmpC
 		}
 	}

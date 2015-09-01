@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
+	"time"
 )
 
 var (
@@ -26,6 +27,7 @@ func InitAPIClient() {
 		Dial: unixSocketDial,
 	}
 	client = &http.Client{Transport: tr}
+	client.Timeout = time.Second * 30
 
 }
 

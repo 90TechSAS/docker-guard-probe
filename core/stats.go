@@ -116,7 +116,15 @@ func GetStats(container *dapi.ContainerShort, oldS *OldStats, wg *sync.WaitGroup
 			txb = (float64(tmpDAPIContainerS.Network.TxBytes) - oldS.NetTX) / time.Since(oldS.Time).Seconds()
 			delta1 := float64(tmpDAPIContainerS.CPUStats.CPUUsage.TotalUsage) - oldS.CPUUsage
 			delta2 := float64(tmpDAPIContainerS.CPUStats.SystemCPUUsage) - oldS.SystemCPUUsage
-			cpuu = delta1 / delta2 * 100
+			if delta1 > 0.0 && delta2 > 0.0 {
+				cpuu = delta1 / delta2 * 100
+			}
+			if rxb < 0 {
+				rxb = 0
+			}
+			if txb < 0 {
+				txb = 0
+			}
 		} else {
 			rxb = 0
 			txb = 0
