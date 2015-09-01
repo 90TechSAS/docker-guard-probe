@@ -19,6 +19,34 @@ func StorageController() {
 	var tmpContainerArray []dapi.ContainerShort // Temporary container array
 	var sizeRW int64                            // Container's Size RW
 	var sizeRootFs int64                        // Container's Size RootFs
+	var dockerInfos dapi.DockerInfos            // Docker info to retrieve Docker storage driver
+	var dockerRootFsPath string                 // Docker RootFs path
+	var dockerRWPath string                     // Docker RW path
+
+	// Get Docker storage driver
+	l.Debug("StorageController: Get docker storage driver")
+	status, body = HTTPReq("/info")
+	if status != 200 {
+		l.Critical("StorageController: Can't get docker storage driver, status:", status)
+	}
+	// Parse returned json
+	err = json.Unmarshal([]byte(body), &dockerInfos)
+	if err != nil {
+		l.Critical("StorageController: Parsing docker storage driver:", err)
+	}
+
+	switch dockerInfos.Driver {
+	case "aufs":
+		DockerDriver = "aufs"
+		dockerRootFsPath = "/var/lib/docker/aufs/mnt/"
+		dockerRWPath = "/var/lib/docker/aufs/diff/"
+	case "devicemapper":
+		DockerDriver = "devicemapper"
+		dockerRootFsPath = "/var/lib/docker/devicemapper/mnt/"
+		dockerRWPath = "/var/lib/docker/devicemapper/mnt/"
+	default:
+		l.Critical("StorageController: unknown Docker storage driver:", dockerInfos.Driver)
+	}
 
 	for {
 		// Get container list
@@ -47,11 +75,11 @@ func StorageController() {
 
 		for i := 0; i < len(tmpContainerArray); i++ {
 			// Get container sizes
-			sizeRW, err = utils.DirectorySize("/var/lib/docker/aufs/diff/" + tmpContainerArray[i].ID)
+			sizeRW, err = utils.DirectorySize(dockerRWPath + tmpContainerArray[i].ID)
 			if err != nil {
 				l.Error("StorageController: Can't get container (", tmpContainerArray[i].ID, ") SizeRootFs:", err)
 			}
-			sizeRootFs, err = utils.DirectorySize("/var/lib/docker/aufs/mnt/" + tmpContainerArray[i].ID)
+			sizeRootFs, err = utils.DirectorySize(dockerRootFsPath + tmpContainerArray[i].ID)
 			if err != nil {
 				l.Error("StorageController: Can't get container (", tmpContainerArray[i].ID, ") SizeRW:", err)
 			}

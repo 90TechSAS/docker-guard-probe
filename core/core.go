@@ -16,6 +16,7 @@ import (
 */
 var (
 	ContainerList map[string]*dguard.Container
+	DockerDriver  string
 )
 
 /*
