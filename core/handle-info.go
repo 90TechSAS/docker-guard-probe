@@ -89,7 +89,7 @@ func HTTPHandlerProbeinfos(w http.ResponseWriter, r *http.Request) {
 	var err error                    // Error handling
 
 	// Get load average
-	out, err = exec.Command("sh", "-c", "uptime | awk '{printf \"%s%s%s\",$8,$9,$10}'").Output()
+	out, err = exec.Command("sh", "-c", "uptime | awk -F\"average:\" '{print $2}' | awk '{printf \"%s%s%s\",$1,$2,$3}'").Output()
 	if err != nil {
 		l.Error("HTTPHandlerProbeinfos: get load avg:", err)
 		http.Error(w, http.StatusText(500), 500)
