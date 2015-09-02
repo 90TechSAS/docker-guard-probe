@@ -116,12 +116,14 @@ func HTTPHandlerProbeinfos(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+	probeInfos.MemoryAvailable, err = utils.S2F(string(out))
 	if err != nil {
 		l.Error("HTTPHandlerProbeinfos: get mem available S2I:", err)
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-	probeInfos.MemoryAvailable, err = utils.S2F(string(out))
+	probeInfos.MemoryTotal = probeInfos.MemoryTotal * 1024
+	probeInfos.MemoryAvailable = probeInfos.MemoryAvailable * 1024
 
 	// Get disk usage
 	syscall.Statfs("/", &stat)
