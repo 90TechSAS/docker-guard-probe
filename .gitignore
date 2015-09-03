@@ -1,3 +1,6 @@
 # Ignore binary
 main
-dgs-probe
+dg-probe
+
+# Ignore config file
+config.yaml
