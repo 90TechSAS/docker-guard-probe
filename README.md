@@ -35,7 +35,14 @@ If everything is ok, this command displays "true".
 
 ## How to configure?
 
-TODO
+The file config.yaml is the config file of the probe. When you clone the project, this file is absent and ignored by git to prevent commiting your configuration (and you password btw). So first, you need to copy the file config.yaml.example like this:
+
+```bash
+cp config.yaml.example config.yaml
+```
+
+And then you can edit the configuration by editing config.yaml.
+There are comments in this file who explains how it works, don't worry.
 
 ## How to contribute?
 
