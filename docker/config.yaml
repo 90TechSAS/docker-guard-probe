@@ -1,9 +1,18 @@
 docker:
+  # Docker's unix socket path. Used for communication with Docker.
   unix-socket-path: "/var/run/docker.sock"
 
 docker-guard:
+  # This is the IP used by the API
+  # If you use 0.0.0.0, the API will listen on every available interfaces
   listen-interface: "0.0.0.0"
+
+  # This is the port used by the API
+  # By default it's 8123, but you can use every port you want!
   listen-port: "8123"
+
+  # This is the API password
+  # By default it's "changeme" but you REALY SHOULD change it for security purpose!
   api-password: "changeme"
   refresh-container-list-interval: 1
   storage-controller-interval: 1
