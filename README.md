@@ -46,7 +46,7 @@ There are comments in this file who explains how it works, don't worry.
 
 ## How to contribute?
 
-Feel free to fork the project a make a pull request!
+Feel free to fork the project and make a pull request!
 
 ## Thanks to
 
