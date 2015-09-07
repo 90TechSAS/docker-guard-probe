@@ -27,8 +27,7 @@ func InitAPIClient() {
 		Dial: unixSocketDial,
 	}
 	client = &http.Client{Transport: tr}
-	client.Timeout = time.Second * 30
-
+	client.Timeout = time.Second * 5
 }
 
 /*

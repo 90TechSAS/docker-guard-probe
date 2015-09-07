@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"strings"
 	"sync"
 	"time"
 
@@ -61,6 +62,12 @@ func StatsController() {
 		// Get containers' stats
 		for i := 0; i < len(tmpContainerArray); i++ {
 			tmpContainer := tmpContainerArray[i]
+
+			// Skip getting stats if container stopped.
+			if !strings.HasPrefix(tmpContainer.Status, "Up") {
+				l.Debug("StatsController: Container", tmpContainer.ID, "is stopped. Get stats skipped.")
+				continue
+			}
 
 			// Get asynchronously stats
 			if oldStats[tmpContainer.ID] == nil {
