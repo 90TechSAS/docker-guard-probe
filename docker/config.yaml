@@ -3,17 +3,24 @@ docker:
   unix-socket-path: "/var/run/docker.sock"
 
 docker-guard:
-  # This is the IP used by the API
+  # IP used by the API
   # If you use 0.0.0.0, the API will listen on every available interfaces
   listen-interface: "0.0.0.0"
 
-  # This is the port used by the API
+  # Port used by the API
   # By default it's 8123, but you can use every port you want!
   listen-port: "8123"
 
-  # This is the API password
+  # API password
   # By default it's "changeme" but you REALY SHOULD change it for security purpose!
   api-password: "changeme"
+
+  # Time between every refresh of the list of containers+stats in seconds (1-5 second(s) is fine)
   refresh-container-list-interval: 1
+
+  # Time between every check of a container disk usage (1-5 second(s) is fine)
   storage-controller-interval: 1
-  storage-controller-pause: 10
+
+  # Time between every refresh of the list of containers disk usage (1-5 minute(s) is fine)
+  # Be careful, the storage controller do a lot of disk IO to retrieve the disk usage.
+  storage-controller-pause: 60
