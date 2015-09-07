@@ -123,7 +123,7 @@ func RefreshContainerList() error {
 		// Get container infos
 		status, body = HTTPReq("/containers/" + dapiContainer.ID + "/json")
 		if status != 200 {
-			l.Error("RefreshContainerList: Can't get container list, status:", status)
+			l.Error("RefreshContainerList: Can't get container", dapiContainer.ID, ",status:", status)
 			continue
 		}
 
