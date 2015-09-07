@@ -4,7 +4,7 @@
 
 Docker Guard is a powerful monitoring tool to watch your containers (running or not, memory/disk/netio usage, ...)
 
-This tool is the probe of the ![Docker Guard Monitoring system](https://github.com/90TechSAS/docker-guard-monitoring)
+This tool is the probe of the [Docker Guard Monitoring system](https://github.com/90TechSAS/docker-guard-monitoring)
 
 ## How to install?
 
