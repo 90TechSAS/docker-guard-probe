@@ -72,7 +72,7 @@ func DirectorySize(dir string) (int64, error) {
 	var err error  // Error handling
 	var out []byte // Command output
 
-	out, err = exec.Command("ionice", "-c", "3", "du", "-s", dir).Output()
+	out, err = exec.Command("ionice", "-c", "3", "du", "-s", "--exclude=run", "--exclude=proc", dir).Output()
 	if err != nil {
 		return 0, err
 	}
