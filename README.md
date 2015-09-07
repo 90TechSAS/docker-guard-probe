@@ -13,8 +13,8 @@ You must have Docker 1.8.2 or newer installed (to display the version, type in t
 Now, let's run the probe:
 
 ```bash
-git clone https://github.com/90TechSAS/docker-guard-monitoring.git
-cd docker-guard-monitoring/docker
+git clone https://github.com/90TechSAS/docker-guard-probe.git
+cd docker-guard-probe/docker
 ```
 
 Edit the file ```config.yaml``` at your own sweet will.
