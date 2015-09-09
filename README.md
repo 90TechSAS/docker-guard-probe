@@ -14,13 +14,14 @@ Now, let's run the probe:
 
 ```bash
 git clone https://github.com/90TechSAS/docker-guard-probe.git
-cd docker-guard-probe/docker
 ```
 
-Edit the file ```config.yaml``` at your own sweet will.
+Edit the file ```config.yaml``` at your own sweet will (see: "How to configure").
 Type these commands to build a container with the probe inside and run it!
+Note that: when you are is the directory ```docker-guard-probe/docker``` and execute build.sh, this script will copy the parent directory in the current directory (```cp -r .. dgp```). The goal to doing this, is to copy your docker-guard-probe clone in the Docker container.
 
 ```bash
+cd docker-guard-probe/docker
 ./build.sh
 ./run.sh
 ```
