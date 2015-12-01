@@ -6,6 +6,17 @@ Docker Guard is a powerful monitoring tool to watch your containers (running or 
 
 This tool is the probe of the [Docker Guard Monitoring system](https://github.com/90TechSAS/docker-guard-monitoring)
 
+## How to configure?
+
+The file config.yaml is the config file of the probe. When you clone the project, this file is absent and ignored by git to prevent commiting your configuration (and you password btw). So first, you need to copy the file config.yaml.example like this:
+
+```bash
+cp config.yaml.example config.yaml
+```
+
+And then you can edit the configuration by editing config.yaml.
+There are comments in this file who explains how it works, don't worry.
+
 ## How to install?
 
 You must have Docker 1.8.2 or newer installed (to display the version, type in the console: ```docker version```).
@@ -18,7 +29,7 @@ git clone https://github.com/90TechSAS/docker-guard-probe.git
 
 Edit the file ```config.yaml``` at your own sweet will (see: "How to configure").
 Type these commands to build a container with the probe inside and run it!
-Note that: when you are is the directory ```docker-guard-probe/docker``` and execute build.sh, this script will copy the parent directory in the current directory (```cp -r .. dgp```). The goal to doing this, is to copy your docker-guard-probe clone in the Docker container.
+Note that: when you are is the directory ```docker-guard-probe/docker``` and execute build.sh, this script will copy docker-guard-probe sources and config from the parent directory to the current directory.
 
 ```bash
 cd docker-guard-probe/docker
@@ -33,17 +44,6 @@ docker inspect -f {{.State.Running}} b0ae690e631af71cd768d08b33205adc9474e57302b
 ```
 
 If everything is ok, this command displays "true".
-
-## How to configure?
-
-The file config.yaml is the config file of the probe. When you clone the project, this file is absent and ignored by git to prevent commiting your configuration (and you password btw). So first, you need to copy the file config.yaml.example like this:
-
-```bash
-cp config.yaml.example config.yaml
-```
-
-And then you can edit the configuration by editing config.yaml.
-There are comments in this file who explains how it works, don't worry.
 
 ## How to contribute?
 
