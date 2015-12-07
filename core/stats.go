@@ -111,7 +111,7 @@ func GetStats(container *dapi.ContainerShort, oldS *OldStats, wg *sync.WaitGroup
 	// Parse container returned json
 	err = json.Unmarshal([]byte(body), &tmpDAPIContainerS)
 	if err != nil {
-		l.Error("StatsController: Parsing docker container (", container.ID, ") stats:", err)
+		l.Error("StatsController: Parsing docker container (", container.ID, ") stats:", err, "\nJSON:", body)
 		return
 	}
 
