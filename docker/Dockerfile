@@ -24,4 +24,4 @@ VOLUME /var/lib/docker /var/lib/docker
 
 EXPOSE 8123
 
-ENTRYPOINT /dgp/dg-probe -f /dgp/config.yaml
+ENTRYPOINT /dgp/dg-probe -vvv -f /dgp/config.yaml
